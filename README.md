@@ -1,15 +1,34 @@
 # Jonathan Vecchione
 
-I build ML training infrastructure in Rust and Python — checkpointing, resume,
-and training across the internet — so a run that crashes picks up where it left off.
+I build ML training infrastructure in Rust and Python: fault-tolerant, distributed
+PyTorch training that picks up exactly where it left off, on one GPU or across machines.
 
 ## Projects
 
-| Project | What it does |
-|---|---|
-| [**Ravex**](https://github.com/JHNMACHINE/ravex) | Checkpoint and resume for PyTorch training from one decorator. No changes inside the training loop. |
-| [**Moonclip**](https://github.com/JHNMACHINE/moonclip) | Checkpoint engine in Rust with Python bindings: per-tensor delta tracking, zstd compression, S3/R2 storage. |
-| **Raven** | A small, CPU-friendly diffusion language model (discrete masked diffusion, LLaDA/MaskGIT style). |
+### [Ravex](https://github.com/JHNMACHINE/ravex): fault-tolerant PyTorch training runtime
+
+Put one decorator on the function that trains and the run survives preemption,
+reboots and OOM kills. Rerun the same command and training continues
+**bit-identically**, step by step, as if it had never stopped.
+
+- Finds the model, optimizer, LR scheduler, AMP scaler and dataloader on its own,
+  with no changes inside the loop
+- Restores the complete state: weights, optimizer moments, schedule, RNG and
+  dataset position
+- Multi-GPU and multi-machine: DDP and FSDP, with gathered or per-rank sharded
+  checkpoints and resharding onto a different number of ranks
+- Survives losing a machine through S3/R2 storage or peer-to-peer replication,
+  and supports elastic membership
+- Works with HuggingFace `Trainer` and Lightning, and imports DeepSpeed ZeRO and
+  `torch.distributed.checkpoint` checkpoints
+- Rust core for the reshard planner and the replica transport
+
+### [Moonclip](https://github.com/JHNMACHINE/moonclip): checkpoint engine
+
+The storage layer under Ravex, and usable without it: Rust with Python bindings,
+framework-agnostic. It tracks per-tensor deltas, skips unchanged weights,
+compresses with zstd and writes to local disk, S3 or R2. Against `torch.save` a
+save is 1.6–3× faster and about half the size.
 
 ## Stack
 
