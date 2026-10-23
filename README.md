@@ -21,14 +21,25 @@ reboots and OOM kills. Rerun the same command and training continues
   and supports elastic membership
 - Works with HuggingFace `Trainer` and Lightning, and imports DeepSpeed ZeRO and
   `torch.distributed.checkpoint` checkpoints
-- Rust core for the reshard planner and the replica transport
+- Trains across the internet: nodes on different machines exchange parameter
+  deltas, and can join or leave a run while it keeps going
+- Pure Python, one wheel for every platform: everything it saves goes through
+  Moonclip
 
 ### [Moonclip](https://github.com/JHNMACHINE/moonclip): checkpoint engine
 
 The storage layer under Ravex, and usable without it: Rust with Python bindings,
-framework-agnostic. It tracks per-tensor deltas, skips unchanged weights,
-compresses with zstd and writes to local disk, S3 or R2. Against `torch.save` a
+framework-agnostic. Every file a run saves goes through it: it tracks
+per-tensor deltas, skips unchanged weights, compresses with zstd and writes to
+local disk, S3 or R2, reading the bucket's keys itself. Against `torch.save` a
 save is 1.6–3× faster and about half the size.
+
+### [smith](https://github.com/JHNMACHINE/smith): agent for training nodes
+
+Runs where the training is, from a laptop to a rented GPU node: takes jobs from
+a backend's queue, runs only scripts it was configured with, streams their
+output, and keeps the wheels and kernels a machine compiled so the next one
+like it skips the compilation.
 
 ## Stack
 
