@@ -1,5 +1,3 @@
-# Jonathan Vecchione
-
 I build ML training infrastructure in Rust and Python: fault-tolerant, distributed
 PyTorch training that picks up exactly where it left off, on one GPU or across machines.
 
